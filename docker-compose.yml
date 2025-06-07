@@ -1,0 +1,14 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: customerledger-db
+    environment:
+      MYSQL_ROOT_PASSWORD: password #Change it for prod (obvious)
+      MYSQL_DATABASE: customer_ledger
+    ports:
+      - "3306:3306"
+    volumes:
+      - customerledger-db-data:/var/lib/mysql
+
+volumes:
+  customerledger-db-data:
