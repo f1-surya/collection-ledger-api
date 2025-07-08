@@ -54,7 +54,7 @@ public class AuthService {
         HttpStatusCode.valueOf(401), "Invalid refresh token."
     );
 
-    final var userId = jwtService.extractUsername(accessToken);
+    final var userId = jwtService.extractUserId(accessToken);
     final var user = userRepo.findById(userId).orElseThrow(() -> new ResponseStatusException(
         HttpStatusCode.valueOf(401), "Invalid refresh token."
     ));

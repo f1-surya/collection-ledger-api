@@ -1,6 +1,5 @@
 package com.surya.customerledger.controller;
 
-import com.surya.customerledger.db.model.User;
 import com.surya.customerledger.db.repo.UserRepo;
 import com.surya.customerledger.security.AuthService;
 import jakarta.validation.constraints.Email;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/auth")

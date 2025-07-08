@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from a repository -->
     </parent>
     <groupId>com.surya</groupId>
-    <artifactId>some-rest-api</artifactId>
+    <artifactId>customer-ledger</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>customerledger</name>
     <description>A very basic REST API with spring boot</description>

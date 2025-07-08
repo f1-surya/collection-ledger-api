@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 
 @Entity
 public class User {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
@@ -19,7 +20,8 @@ public class User {
 
   private String role;
 
-  public User() {}
+  public User() {
+  }
 
   public User(String n, String e, String p, String r) {
     this.name = n;

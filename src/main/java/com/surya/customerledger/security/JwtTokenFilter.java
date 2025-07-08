@@ -1,5 +1,6 @@
 package com.surya.customerledger.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,12 +24,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
     final var authHeader = req.getHeader("Authorization");
-    if (authHeader != null) {
-      if (jwtService.validateAccessToken(authHeader)) {
-        var userId = jwtService.extractUsername(authHeader);
-        var auth = new UsernamePasswordAuthenticationToken(userId, null, List.of());
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    try {
+      if (authHeader != null) {
+        var token = authHeader.split(" ")[1];
+        if (jwtService.validateAccessToken(token)) {
+          var userId = jwtService.extractUserId(token);
+          var auth = new UsernamePasswordAuthenticationToken(userId, null, List.of());
+          SecurityContextHolder.getContext().setAuthentication(auth);
+        }
       }
+    } catch (ExpiredJwtException e) {
+      res.setStatus(419);
+      res.setContentType("application/json");
+      res.getWriter().write("{\"error\": \"Access token expired\"}");
+      return;
     }
     filterChain.doFilter(req, res);
   }

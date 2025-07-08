@@ -1,9 +1,9 @@
 package com.surya.customerledger.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,7 +33,7 @@ public class JwtService {
     return refreshTokenValidityMs;
   }
 
-  public Integer extractUsername(String token) {
+  public Integer extractUserId(String token) {
     final var rawToken = token.startsWith("Bearer") ? token.split(" ")[1] : token;
     final var claims = parseAllClaims(rawToken);
     if (claims == null) throw new ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid token.");
@@ -86,14 +86,14 @@ public class JwtService {
     return Keys.hmacShaKeyFor(keyBytes);
   }
 
-  private Claims parseAllClaims(String token) {
+  private Claims parseAllClaims(String token) throws ExpiredJwtException {
     try {
       return Jwts.parser()
           .verifyWith((SecretKey) getSigningKey())
           .build()
           .parseSignedClaims(token)
           .getPayload();
-    } catch (Exception e) {
+    } catch (MalformedJwtException e) {
       return null;
     }
   }
