@@ -4,6 +4,7 @@ import com.surya.customerledger.db.model.RefreshToken;
 import com.surya.customerledger.db.model.User;
 import com.surya.customerledger.db.repo.RefreshTokenRepo;
 import com.surya.customerledger.db.repo.UserRepo;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,10 @@ public class AuthService {
   }
 
   public void register(String name, String email, String password, String role) {
+    var existingUser = userRepo.findByEmail(email);
+    if (existingUser != null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with the same email already exists.");
+    }
     userRepo.save(new User(name, email, hashEncoder.encode(password), role));
   }
 
