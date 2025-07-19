@@ -1,9 +1,10 @@
 package com.surya.customerledger.controller;
 
-import com.surya.customerledger.db.repo.UserRepo;
 import com.surya.customerledger.security.AuthService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,35 +17,38 @@ import java.security.NoSuchAlgorithmException;
 @RequestMapping("/auth")
 public class AuthController {
   private final AuthService authService;
-  private final UserRepo userRepo;
 
-  public AuthController(AuthService authService, UserRepo userRepo) {
+  public AuthController(AuthService authService) {
     this.authService = authService;
-    this.userRepo = userRepo;
   }
 
   @PostMapping("/signup")
-  public void signup(@RequestBody SignupRequest signupRequest) {
+  public void signup(@RequestBody @Valid SignupRequest signupRequest) {
     authService.register(signupRequest.name, signupRequest.email, signupRequest.password, "ADMIN");
   }
 
   @PostMapping("/login")
-  public AuthService.TokenPair login(@RequestBody LoginRequest loginRequest) throws NoSuchAlgorithmException {
+  public AuthService.TokenPair login(@RequestBody @Valid LoginRequest loginRequest) throws NoSuchAlgorithmException {
     return authService.login(loginRequest.email, loginRequest.password);
   }
 
   @PostMapping("/refresh")
-  public AuthService.TokenPair refresh(@RequestBody RefreshRequest refreshRequest) throws NoSuchAlgorithmException {
+  public AuthService.TokenPair refresh(@RequestBody @Valid RefreshRequest refreshRequest) throws NoSuchAlgorithmException {
     return authService.refresh(refreshRequest.token);
   }
 
   public static class SignupRequest {
-    @NotBlank
+    @NotNull(message = "Name is required")
+    @NotBlank(message = "Name mustn't be empty")
     private final String name;
+
+    @NotNull(message = "Email is required")
     @Email(message = "Invalid email format.")
     private final String email;
+
+    @NotNull(message = "Password is required")
     @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}\\$",
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}$",
         message = "Password must be at least 8 characters long and contain at least one digit, uppercase and lowercase letters."
     )
     private final String password;
@@ -57,10 +61,13 @@ public class AuthController {
   }
 
   public static class LoginRequest {
+    @NotNull(message = "Email is required")
     @Email(message = "Invalid email format.")
     private final String email;
+
+    @NotNull(message = "Password is required")
     @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}\\$",
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$",
         message = "Password must be at least 8 characters long and contain at least one digit, uppercase and lowercase letters."
     )
     private final String password;

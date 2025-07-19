@@ -1,4 +1,8 @@
 package com.surya.customerledger.area;
 
-public record CreateAreaDto(String name) {
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+public record CreateAreaDto(
+    @NotNull(message = "Name is required") @NotEmpty(message = "Name mustn't be empty") String name) {
 }

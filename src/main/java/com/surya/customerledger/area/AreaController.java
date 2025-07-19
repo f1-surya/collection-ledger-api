@@ -1,5 +1,6 @@
 package com.surya.customerledger.area;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class AreaController {
   }
 
   @PostMapping
-  public void createArea(@RequestBody CreateAreaDto dto) {
+  public void createArea(@RequestBody @Valid CreateAreaDto dto) {
     areaService.create(dto);
   }
 
@@ -24,7 +25,7 @@ public class AreaController {
   }
 
   @PutMapping
-  public void updateArea(@RequestBody UpdateAreaDto updateAreaDto) {
+  public void updateArea(@RequestBody @Valid UpdateAreaDto updateAreaDto) {
     areaService.update(updateAreaDto);
   }
 }

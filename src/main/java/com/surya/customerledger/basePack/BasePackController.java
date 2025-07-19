@@ -1,10 +1,7 @@
 package com.surya.customerledger.basePack;
 
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -18,10 +15,7 @@ public class BasePackController {
   }
 
   @PostMapping
-  public void createPack(@RequestBody @Valid BasePackDto dto, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, bindingResult.getFieldError().getDefaultMessage());
-    }
+  public void createPack(@RequestBody @Valid BasePackDto dto) {
     basePackService.createBasePack(dto);
   }
 
@@ -31,10 +25,7 @@ public class BasePackController {
   }
 
   @PutMapping
-  public void updateBasePack(@RequestBody @Valid UpdateBasePackDto dto, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, bindingResult.getFieldError().getDefaultMessage());
-    }
+  public void updateBasePack(@RequestBody @Valid UpdateBasePackDto dto) {
     basePackService.updatePack(dto);
   }
 }

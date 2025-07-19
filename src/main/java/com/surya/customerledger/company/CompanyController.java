@@ -1,5 +1,6 @@
 package com.surya.customerledger.company;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.ExecutionException;
@@ -15,7 +16,7 @@ public class CompanyController {
   }
 
   @PostMapping
-  public void createCompany(@RequestBody CompanyDto companyDto) throws ExecutionException, InterruptedException {
+  public void createCompany(@RequestBody @Valid CompanyDto companyDto) throws ExecutionException, InterruptedException {
     companyService.createCompany(companyDto);
   }
 
@@ -25,7 +26,7 @@ public class CompanyController {
   }
 
   @PutMapping
-  public void editCompany(@RequestBody CompanyDto companyDto) {
+  public void editCompany(@RequestBody @Valid CompanyDto companyDto) {
     companyService.editCompany(companyDto);
   }
 

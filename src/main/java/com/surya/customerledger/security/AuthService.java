@@ -29,8 +29,8 @@ public class AuthService {
     this.refreshTokenRepo = refreshTokenRepo;
   }
 
-  public User register(String name, String email, String password, String role) {
-    return userRepo.save(new User(name, email, hashEncoder.encode(password), role));
+  public void register(String name, String email, String password, String role) {
+    userRepo.save(new User(name, email, hashEncoder.encode(password), role));
   }
 
   public TokenPair login(String email, String password) throws NoSuchAlgorithmException {
