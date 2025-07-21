@@ -4,8 +4,8 @@ import com.surya.customerledger.area.Area;
 import com.surya.customerledger.basePack.BasePack;
 import com.surya.customerledger.company.Company;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -24,10 +24,10 @@ public class Connection {
 
   private Instant lastPayment;
 
-  @CreatedDate
+  @CreationTimestamp
   private Instant createdAt;
 
-  @LastModifiedDate
+  @UpdateTimestamp
   private Instant updatedDate;
 
   @ManyToOne(cascade = CascadeType.REMOVE)
