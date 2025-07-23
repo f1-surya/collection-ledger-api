@@ -14,7 +14,7 @@ public class Company {
 
   private String email;
 
-  @OneToOne(cascade = CascadeType.REMOVE)
+  @OneToOne
   @JoinColumn(name = "owner_id")
   private User owner;
 
