@@ -33,10 +33,10 @@ public class PaymentService {
   public void create(Integer connectionId) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create payments."));
 
     var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to mark as paid doesn't exist"));
 
     var now = LocalDateTime.now();
     var paymentCurrentMonth = paymentRepo.findFirstByCompanyAndConnectionAndDateBetween(
@@ -65,10 +65,10 @@ public class PaymentService {
   public void migrate(Integer connectionId, Integer toPackId) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Since you don't have any company so you don't have any connections to make migrations."));
 
     var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to migrate doesn't exist"));
     var toPack = basePackRepo.findByIdAndCompany(toPackId, company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The pack you've selected doesn't exist"));
 
@@ -103,7 +103,7 @@ public class PaymentService {
   public List<PaymentPartial> getAll(Instant start, Instant end) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have payments."));
 
     return paymentRepo.findPaymentPartialByCompanyAndDateBetween(company, start, end);
   }
@@ -111,7 +111,7 @@ public class PaymentService {
   public List<PaymentPartial> getAllForConnection(Integer connectionId) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have connection payments."));
 
     var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
@@ -122,7 +122,7 @@ public class PaymentService {
   public void delete(Integer paymentId) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You don't have any company yet"));
     var currentPayment = paymentRepo.findByIdAndCompany(paymentId, company)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The payment you're trying to delete doesn't exist"));
     var currentConnection = connectionRepo.findById(currentPayment.getConnection().getId())

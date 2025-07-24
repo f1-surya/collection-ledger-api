@@ -35,7 +35,7 @@ public class ConnectionService {
   public void create(CreateConnectionDto dto) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to create connections."));
     var areaFuture = CompletableFuture.supplyAsync(() -> areaRepo.findByIdAndCompany(dto.area(), company))
         .exceptionally(throwable -> {
           logger.error("Area fetch errored", throwable);
@@ -66,7 +66,7 @@ public class ConnectionService {
   public void update(UpdateConnectionDto dto) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     var connection = connectionRepo.findByIdAndCompany(dto.id(), company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
 
@@ -83,7 +83,7 @@ public class ConnectionService {
   public ConnectionPartial getConnectionById(Integer connectionId) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     return connectionRepo.findConnectionPartialByIdAndCompany(connectionId, company)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to find doesn't exist"));
   }
@@ -91,7 +91,7 @@ public class ConnectionService {
   public List<ConnectionPartial> getAllConnections() {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create a company"));
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     return connectionRepo.findByCompanyOrderByName(company);
   }
 }
