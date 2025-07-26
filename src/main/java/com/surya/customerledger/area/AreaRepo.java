@@ -10,9 +10,10 @@ public interface AreaRepo extends ListCrudRepository<Area, Integer> {
 
   Area findByName(String name);
 
-  Area findByCompany(Company company);
+  List<Area> findByCompany(Company company);
 
   List<AreaNameIdOnly> findByCompanyOrderByName(Company company);
 
   Optional<Area> findByIdAndCompany(Integer id, Company company);
+
 }

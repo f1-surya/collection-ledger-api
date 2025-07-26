@@ -42,7 +42,7 @@ public class PaymentService {
     var paymentCurrentMonth = paymentRepo.findFirstByCompanyAndConnectionAndDateBetween(
         company,
         connection,
-        now.atZone(ZoneId.systemDefault()).toInstant(),
+        now.withDayOfMonth(1).atZone(ZoneId.systemDefault()).toInstant(),
         Instant.now()
     );
 
@@ -97,15 +97,16 @@ public class PaymentService {
           company);
     }
 
+    currPayment.setMigration(true);
     paymentRepo.save(currPayment);
   }
 
-  public List<PaymentPartial> getAll(Instant start, Instant end) {
+  public List<PaymentWC> getAll(Instant start, Instant end) {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have payments."));
 
-    return paymentRepo.findPaymentPartialByCompanyAndDateBetween(company, start, end);
+    return paymentRepo.findPaymentWCByCompanyAndDateBetween(company, start, end);
   }
 
   public List<PaymentPartial> getAllForConnection(Integer connectionId) {

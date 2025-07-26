@@ -11,5 +11,7 @@ public interface BasePackRepo extends ListCrudRepository<BasePack, Integer> {
 
   List<BasePackPartial> findByCompanyOrderByName(Company company);
 
+  List<BasePack> findByCompany(Company company);
+
   Optional<BasePack> findByIdAndCompany(Integer id, Company company);
 }

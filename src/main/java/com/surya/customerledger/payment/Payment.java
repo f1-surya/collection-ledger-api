@@ -26,6 +26,8 @@ public class Payment {
   @JoinColumn(name = "current_pack_id")
   private BasePack currentPack;
 
+  private Boolean isMigration = false;
+
   @ManyToOne
   @JoinColumn(name = "to_pack_id")
   private BasePack to;
@@ -41,7 +43,12 @@ public class Payment {
   public Payment() {
   }
 
-  public Payment(Connection connection, BasePack currentPack, BasePack to, Integer customerPrice, Integer lcoPrice, Company company) {
+  public Payment(Connection connection,
+                 BasePack currentPack,
+                 BasePack to,
+                 Integer customerPrice,
+                 Integer lcoPrice,
+                 Company company) {
     this.connection = connection;
     this.currentPack = currentPack;
     this.to = to;
@@ -112,5 +119,13 @@ public class Payment {
 
   public void setCompany(Company company) {
     this.company = company;
+  }
+
+  public Boolean getMigration() {
+    return isMigration;
+  }
+
+  public void setMigration(Boolean migration) {
+    isMigration = migration;
   }
 }

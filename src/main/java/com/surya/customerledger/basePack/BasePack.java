@@ -2,8 +2,9 @@ package com.surya.customerledger.basePack;
 
 import com.surya.customerledger.company.Company;
 import jakarta.persistence.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 public class BasePack {
@@ -18,8 +19,8 @@ public class BasePack {
 
   private Integer lcoPrice;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date updatedAt;
+  @UpdateTimestamp
+  private Instant updatedAt;
 
   @ManyToOne(cascade = CascadeType.REMOVE)
   @JoinColumn(name = "company_id")
@@ -28,12 +29,10 @@ public class BasePack {
   public BasePack() {
   }
 
-  public BasePack(Integer id, String name, Integer customerPrice, Integer lcoPrice, Date updatedAt, Company company) {
-    this.id = id;
+  public BasePack(String name, Integer customerPrice, Integer lcoPrice, Company company) {
     this.name = name;
     this.customerPrice = customerPrice;
     this.lcoPrice = lcoPrice;
-    this.updatedAt = updatedAt;
     this.company = company;
   }
 
@@ -69,11 +68,11 @@ public class BasePack {
     this.lcoPrice = lcoPrice;
   }
 
-  public Date getUpdatedAt() {
+  public Instant getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(Date updatedAt) {
+  public void setUpdatedAt(Instant updatedAt) {
     this.updatedAt = updatedAt;
   }
 

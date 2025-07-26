@@ -18,6 +18,7 @@ public class Connection {
 
   private String name;
 
+  @Column(unique = true)
   private String boxNumber;
 
   private String phoneNumber;

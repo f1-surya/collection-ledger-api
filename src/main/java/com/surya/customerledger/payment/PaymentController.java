@@ -25,7 +25,7 @@ public class PaymentController {
   }
 
   @GetMapping
-  public List<PaymentPartial> getAll(@RequestParam("start") Instant start, @RequestParam("end") Instant end) {
+  public List<PaymentWC> getAll(@RequestParam("start") Instant start, @RequestParam("end") Instant end) {
     return paymentService.getAll(start, end);
   }
 

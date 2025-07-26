@@ -1,11 +1,14 @@
 package com.surya.customerledger.payment;
 
 import com.surya.customerledger.basePack.BasePackPartial;
+import com.surya.customerledger.connection.ConnectionWBP;
 
 import java.time.Instant;
 
-public interface PaymentPartial {
+public interface PaymentWC {
   Integer getId();
+
+  ConnectionWBP getConnection();
 
   BasePackPartial getCurrentPack();
 
