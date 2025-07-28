@@ -17,7 +17,7 @@ public interface PaymentRepo extends ListCrudRepository<Payment, Integer> {
 
   List<PaymentWC> findPaymentWCByCompanyAndDateBetween(Company company, Instant start, Instant end);
 
-  List<Payment> findByCompanyAndDateBetween(Company company, Instant start, Instant end);
+  List<Payment> findByCompanyAndIsMigrationAndDateBetween(Company company, Boolean isMigration, Instant start, Instant end);
 
   List<PaymentPartial> findPaymentPartialByCompanyAndConnection(Company company, Connection connection);
 
