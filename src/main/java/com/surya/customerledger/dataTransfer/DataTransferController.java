@@ -1,4 +1,4 @@
-package com.surya.customerledger.sheetData;
+package com.surya.customerledger.dataTransfer;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +11,11 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/sheet")
-public class SheetController {
-  private final ExportDataService exportDataService;
+public class DataTransferController {
+  private final DataTransferService dataTransferService;
 
-  public SheetController(ExportDataService exportDataService) {
-    this.exportDataService = exportDataService;
+  public DataTransferController(DataTransferService dataService) {
+    this.dataTransferService = dataService;
   }
 
   @GetMapping("/payments")
@@ -23,6 +23,6 @@ public class SheetController {
     return ResponseEntity
         .ok()
         .contentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-        .body(exportDataService.exportPaymentRange(start, end));
+        .body(dataTransferService.exportPaymentRange(start, end));
   }
 }

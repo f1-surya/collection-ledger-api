@@ -50,9 +50,14 @@ public class Connection {
     this.name = name;
     this.boxNumber = boxNumber;
     this.phoneNumber = phoneNumber;
-    this.lastPayment = lastPayment;
-    this.createdAt = createdAt;
-    this.updatedDate = updatedDate;
+    this.company = company;
+    this.area = area;
+    this.basePack = basePack;
+  }
+
+  public Connection(String name, String boxNumber, Company company, Area area, BasePack basePack) {
+    this.name = name;
+    this.boxNumber = boxNumber;
     this.company = company;
     this.area = area;
     this.basePack = basePack;

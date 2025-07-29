@@ -18,8 +18,7 @@ public class Area {
 
   public Area() {}
 
-  public Area(Integer id, String name, Company company) {
-    this.id = id;
+  public Area(String name, Company company) {
     this.name = name;
     this.company = company;
   }
