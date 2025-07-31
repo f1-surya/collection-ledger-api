@@ -92,6 +92,6 @@ public class ConnectionService {
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
-    return connectionRepo.findByCompanyOrderByName(company);
+    return connectionRepo.findConnectionPartialByCompanyOrderByName(company);
   }
 }

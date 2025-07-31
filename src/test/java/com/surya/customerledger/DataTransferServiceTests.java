@@ -1,6 +1,8 @@
 package com.surya.customerledger;
 
+import com.surya.customerledger.area.Area;
 import com.surya.customerledger.area.AreaRepo;
+import com.surya.customerledger.basePack.BasePack;
 import com.surya.customerledger.basePack.BasePackRepo;
 import com.surya.customerledger.company.Company;
 import com.surya.customerledger.company.CompanyRepo;
@@ -12,10 +14,12 @@ import com.surya.customerledger.payment.PaymentRepo;
 import org.dhatim.fastexcel.reader.ReadableWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,6 +70,12 @@ public class DataTransferServiceTests {
   private Payment payment2;
 
   @Mock
+  private Area area;
+
+  @Mock
+  private BasePack basePack;
+
+  @Mock
   private Connection connection1;
 
   @Mock
@@ -80,52 +91,110 @@ public class DataTransferServiceTests {
   @Test
   void DataTransferService_exportPaymentRange_Success_ReturnsExcelBytes() {
     var payments = Arrays.asList(payment1, payment2);
-    try (var securityContextHolder = mockStatic(SecurityContextHolder.class)) {
-      setUpSecurityContext(securityContextHolder);
-      setUpCompanyMock();
-      setUpPayments(payments);
+    setUpCompanyMock();
+    setUpPayments(payments);
+    setupSecurityContext();
 
-      var result = dataTransferService.exportPaymentRange(startDate, endDate);
+    var result = dataTransferService.exportPaymentRange(startDate, endDate);
 
-      assertNotNull(result);
-      assertTrue(result.length > 0);
+    assertNotNull(result);
+    assertTrue(result.length > 0);
 
-      verify(companyRepo).findByOwner(userId);
-      verify(paymentRepo).findByCompanyAndIsMigrationAndDateBetween(company, false, startDate, endDate);
-      verify(payment1).getConnection();
-      verify(payment2).getConnection();
-      verify(connection1).getBoxNumber();
-      verify(connection2).getBoxNumber();
+    verify(companyRepo).findByOwner(userId);
+    verify(paymentRepo).findByCompanyAndIsMigrationAndDateBetween(company, false, startDate, endDate);
+    verify(payment1).getConnection();
+    verify(payment2).getConnection();
+    verify(connection1).getBoxNumber();
+    verify(connection2).getBoxNumber();
 
-      try (var is = new ByteArrayInputStream(result); var wb = new ReadableWorkbook(is)) {
-        var rows = wb.getFirstSheet().read();
-        assertFalse(rows.isEmpty());
-        assertEquals("832b00100001", rows.getFirst().getCell(0).asString());
-        assertEquals("832b00100002", rows.getLast().getCell(0).asString());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    try (var is = new ByteArrayInputStream(result); var wb = new ReadableWorkbook(is)) {
+      var rows = wb.getFirstSheet().read();
+      assertFalse(rows.isEmpty());
+      assertEquals("832b00100001", rows.getFirst().getCell(0).asString());
+      assertEquals("832b00100002", rows.getLast().getCell(0).asString());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
   @Test
   void DataTransferService_exportPaymentRange_Fail_ThrowsResponseStatusException() {
-    try (var securityContextHolder = mockStatic(SecurityContextHolder.class)) {
-      setUpSecurityContext(securityContextHolder);
-      setUpCompanyMock();
-
-      assertThrows(ResponseStatusException.class, () -> dataTransferService.exportPaymentRange(startDate, endDate));
-    }
+    assertThrows(ResponseStatusException.class, () -> dataTransferService.exportPaymentRange(startDate, endDate));
   }
 
-  private void setUpSecurityContext(MockedStatic<SecurityContextHolder> securityContextHolder) {
-    securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+  @Test
+  void DataTransferService_importFromSheet_Success() throws IOException {
+    setupSecurityContext();
+    setUpCompanyMock();
+    setupAreaAndBasePackMocks();
+
+    var resource = new ClassPathResource("test_data.xlsx");
+    assertTrue(resource.exists());
+    assertTrue(resource.isReadable());
+
+    dataTransferService.importFromSheet(resource.getContentAsByteArray());
+
+    verify(areaRepo).findByCompany(company);
+    var areaArgument = ArgumentCaptor.forClass(Area.class);
+    verify(areaRepo, times(5)).save(areaArgument.capture());
+    assertEquals(5, areaArgument.getAllValues().size());
+    var firstArea = areaArgument.getAllValues().getFirst();
+    assertEquals("GOVT SCHOOL ROAD, MADURAI - 625018", firstArea.getName());
+
+    verify(basePackRepo).findByCompany(company);
+    var basePackArgument = ArgumentCaptor.forClass(BasePack.class);
+    verify(basePackRepo, times(2)).save(basePackArgument.capture());
+    assertEquals(2, basePackArgument.getAllValues().size());
+    var firstBasePack = basePackArgument.getAllValues().getFirst();
+    assertEquals("SCV TAMIL PLATINUM", firstBasePack.getName());
+
+    ArgumentCaptor<List<Connection>> connectionsArgument = ArgumentCaptor.forClass(List.class);
+    verify(connectionRepo).saveAll(connectionsArgument.capture());
+    var newConnections = connectionsArgument.getValue();
+    assertEquals(7, newConnections.size());
+    assertEquals("Faramir", newConnections.getFirst().getName());
+  }
+
+  @Test
+  void DataTransferService_importFromSheet_Fail_EmptySheet() {
+    ResponseStatusException e = assertThrows(ResponseStatusException.class, () -> dataTransferService.importFromSheet(new byte[0]));
+    assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+  }
+
+  @Test
+  void DataTransferService_importFromSheet_Fail_UnknownFormat() {
+    setupSecurityContext();
+    setUpCompanyMock();
+
+    var resource = new ClassPathResource("test_data_wrong_format.xlsx");
+    assertTrue(resource.exists());
+    assertTrue(resource.isReadable());
+
+    ResponseStatusException e = assertThrows(ResponseStatusException.class,
+        () -> dataTransferService.importFromSheet(resource.getContentAsByteArray()));
+    assertEquals(HttpStatus.NOT_ACCEPTABLE, e.getStatusCode());
+  }
+
+  private void setupSecurityContext() {
+    SecurityContextHolder.setContext(securityContext);
     when(securityContext.getAuthentication()).thenReturn(authentication);
     when(authentication.getPrincipal()).thenReturn(userId);
   }
 
   private void setUpCompanyMock() {
     when(companyRepo.findByOwner(userId)).thenReturn(Optional.of(company));
+  }
+
+  private void setupAreaAndBasePackMocks() {
+    when(area.getName()).thenReturn("Gondor");
+    when(basePack.getName()).thenReturn("Silver pack");
+
+    when(areaRepo.findByCompany(company)).thenReturn(List.of(area));
+    when(areaRepo.save(any(Area.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0, Area.class));
+    when(basePackRepo.findByCompany(company)).thenReturn(List.of(basePack));
+    when(basePackRepo.save(any(BasePack.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0, BasePack.class));
   }
 
   private void setUpPayments(List<Payment> payments) {

@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,6 +74,8 @@ public class DataTransferService {
 
   @Transactional
   public void importFromSheet(byte[] rawSheetData) {
+    if (rawSheetData.length == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sheet is empty");
+
     var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(userId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "You need to have a company."));
@@ -88,9 +91,19 @@ public class DataTransferService {
       var newConnections = new ArrayList<Connection>();
       var sheet = wb.getFirstSheet();
       var rows = sheet.read();
+      if (rows.isEmpty())
+        throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "The sheet you've provided is empty.");
+
       var columns = rows.getFirst().stream()
-          .filter(h -> Set.of("NAME", "SMARTCARD", "PACKAGE", "ADDRESS").contains(h.asString()))
+          .filter(h -> Set.of("NAME", "SMARTCARD", "PACKAGE", "ADDRESS").contains(h.asString().toUpperCase()))
           .collect(Collectors.toMap(Cell::asString, Cell::getColumnIndex));
+
+      if (columns.size() < 4) {
+        throw new ResponseStatusException(
+            HttpStatus.NOT_ACCEPTABLE,
+            "The sheet you've provided is not in the required format. Please make sure it contains the following headers: NAME, SMARTCARD, PACKAGE and ADDRESS."
+        );
+      }
 
       int nameCol = columns.get("NAME");
       int boxNumberCol = columns.get("SMARTCARD");
@@ -122,7 +135,7 @@ public class DataTransferService {
       if (!newConnections.isEmpty()) {
         connectionRepo.saveAll(newConnections);
       }
-    } catch (Exception e) {
+    } catch (IOException e) {
       logger.error("Error while importing data", e);
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while reading the sheet");
     }
