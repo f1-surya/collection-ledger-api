@@ -28,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -175,6 +176,50 @@ public class DataTransferServiceTests {
     assertEquals(HttpStatus.NOT_ACCEPTABLE, e.getStatusCode());
   }
 
+  @Test
+  void DataTransferService_exportToSheet_Success() {
+    setupSecurityContext();
+    setUpCompanyMock();
+    setUpPayments(List.of(payment1, payment2));
+    var connections = getMockedConnections();
+
+    when(connectionRepo.findByCompanyOrderByName(company)).thenReturn(connections);
+
+    var result = dataTransferService.exportToSheet();
+
+    try (var is = new ByteArrayInputStream(result); var wb = new ReadableWorkbook(is)) {
+      var connectionRows = wb.getFirstSheet().read();
+      connectionRows.removeFirst();
+      assertFalse(connectionRows.isEmpty());
+      for (int i = 0; i < connectionRows.size(); i++) {
+        var currentRow = connectionRows.get(i);
+        assertEquals("Name " + i, currentRow.getCell(0).asString());
+        assertEquals(area.getName(), currentRow.getCell(1).asString());
+        assertNull(currentRow.getCell(2));
+        assertEquals("832b0010000" + i, currentRow.getCell(3).asString());
+        assertEquals(basePack.getName(), currentRow.getCell(4).asString());
+      }
+
+      var paymentsOpt = wb.getSheet(1);
+      assertTrue(paymentsOpt.isPresent());
+      var paymentRows = paymentsOpt.get().read();
+      paymentRows.removeFirst();
+      assertEquals("Batman", paymentRows.getFirst().getCellText(1));
+      assertEquals("Tyler Durden", paymentRows.getLast().getCellText(1));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  void DataTransferService_exportToSheet_Fail_NoConnections() {
+    setupSecurityContext();
+    setUpCompanyMock();
+    when(connectionRepo.findByCompanyOrderByName(company)).thenReturn(List.of());
+
+    assertThrows(ResponseStatusException.class, () -> dataTransferService.exportToSheet());
+  }
+
   private void setupSecurityContext() {
     SecurityContextHolder.setContext(securityContext);
     when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -197,12 +242,40 @@ public class DataTransferServiceTests {
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0, BasePack.class));
   }
 
+  private List<Connection> getMockedConnections() {
+    when(area.getName()).thenReturn("Gondor");
+    when(basePack.getName()).thenReturn("Silver pack");
+
+    var connections = new ArrayList<Connection>();
+
+    for (int i = 0; i < 5; i++) {
+      var newConnection = mock(Connection.class);
+      when(newConnection.getBoxNumber()).thenReturn("832b0010000" + i);
+      when(newConnection.getName()).thenReturn("Name " + i);
+      when(newConnection.getBasePack()).thenReturn(basePack);
+      when(newConnection.getArea()).thenReturn(area);
+      connections.add(newConnection);
+    }
+
+    return connections;
+  }
+
   private void setUpPayments(List<Payment> payments) {
-    when(paymentRepo.findByCompanyAndIsMigrationAndDateBetween(company, false, startDate, endDate))
+    lenient().when(paymentRepo.findByCompanyAndIsMigrationAndDateBetween(company, false, startDate, endDate))
         .thenReturn(payments);
+    lenient().when(paymentRepo.findByCompanyOrderByDate(company)).thenReturn(payments);
+
     when(payment1.getConnection()).thenReturn(connection1);
+    lenient().when(payment1.getDate()).thenReturn(startDate);
+    lenient().when(payment1.getCurrentPack()).thenReturn(basePack);
     when(payment2.getConnection()).thenReturn(connection2);
+    lenient().when(payment2.getDate()).thenReturn(startDate);
+    lenient().when(payment2.getCurrentPack()).thenReturn(basePack);
+
     when(connection1.getBoxNumber()).thenReturn("832b00100001");
+    lenient().when(connection1.getName()).thenReturn("Batman");
+
     when(connection2.getBoxNumber()).thenReturn("832b00100002");
+    lenient().when(connection2.getName()).thenReturn("Tyler Durden");
   }
 }

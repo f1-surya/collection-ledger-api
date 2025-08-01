@@ -2,15 +2,12 @@ package com.surya.customerledger.dataTransfer;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 
 @RestController
-@RequestMapping("/sheet")
+@RequestMapping("/data-transfer")
 public class DataTransferController {
   private final DataTransferService dataTransferService;
 
@@ -24,5 +21,18 @@ public class DataTransferController {
         .ok()
         .contentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
         .body(dataTransferService.exportPaymentRange(start, end));
+  }
+
+  @PostMapping("/import")
+  public void imoprtFromSheet(@RequestBody byte[] sheet) {
+    dataTransferService.importFromSheet(sheet);
+  }
+
+  @GetMapping("/export")
+  public ResponseEntity<byte[]> getData() {
+    return ResponseEntity
+        .ok()
+        .contentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        .body(dataTransferService.exportToSheet());
   }
 }

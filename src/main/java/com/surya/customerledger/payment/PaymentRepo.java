@@ -22,4 +22,6 @@ public interface PaymentRepo extends ListCrudRepository<Payment, Integer> {
   List<PaymentPartial> findPaymentPartialByCompanyAndConnection(Company company, Connection connection);
 
   Optional<Payment> findFirstByCompanyAndConnectionOrderByDateDesc(Company company, Connection connection);
+
+  List<Payment> findByCompanyOrderByDate(Company company);
 }

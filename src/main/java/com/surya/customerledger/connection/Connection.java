@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
 @Entity
+@Table
 public class Connection {
 
   @Id
@@ -18,7 +19,7 @@ public class Connection {
 
   private String name;
 
-  @Column(unique = true)
+  @Column(name = "box_number", unique = true, nullable = false)
   private String boxNumber;
 
   private String phoneNumber;
