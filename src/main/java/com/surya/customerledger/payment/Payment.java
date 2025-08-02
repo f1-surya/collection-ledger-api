@@ -4,6 +4,7 @@ import com.surya.customerledger.basePack.BasePack;
 import com.surya.customerledger.company.Company;
 import com.surya.customerledger.connection.Connection;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -17,6 +18,7 @@ public class Payment {
 
   @ManyToOne
   @JoinColumn(name = "connection_id")
+  @NotNull
   private Connection connection;
 
   @CreationTimestamp
@@ -24,20 +26,25 @@ public class Payment {
 
   @ManyToOne
   @JoinColumn(name = "current_pack_id")
+  @NotNull
   private BasePack currentPack;
 
+  @NotNull
   private Boolean isMigration = false;
 
   @ManyToOne
   @JoinColumn(name = "to_pack_id")
   private BasePack to;
 
+  @NotNull
   private Integer customerPrice;
 
+  @NotNull
   private Integer lcoPrice;
 
   @ManyToOne
   @JoinColumn(name = "company_id")
+  @NotNull
   private Company company;
 
   public Payment() {

@@ -4,6 +4,7 @@ import com.surya.customerledger.area.Area;
 import com.surya.customerledger.basePack.BasePack;
 import com.surya.customerledger.company.Company;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,6 +18,7 @@ public class Connection {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @NotNull
   private String name;
 
   @Column(name = "box_number", unique = true, nullable = false)
@@ -32,14 +34,17 @@ public class Connection {
   @UpdateTimestamp
   private Instant updatedDate;
 
+  @NotNull
   @ManyToOne(cascade = CascadeType.REMOVE)
   @JoinColumn(name = "company_id")
   private Company company;
 
+  @NotNull
   @ManyToOne
   @JoinColumn(name = "area_id")
   private Area area;
 
+  @NotNull
   @ManyToOne
   @JoinColumn(name = "basePack_id")
   private BasePack basePack;

@@ -2,6 +2,7 @@ package com.surya.customerledger.basePack;
 
 import com.surya.customerledger.company.Company;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -13,10 +14,13 @@ public class BasePack {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @NotNull
   private String name;
 
+  @NotNull
   private Integer customerPrice;
 
+  @NotNull
   private Integer lcoPrice;
 
   @UpdateTimestamp
@@ -24,6 +28,7 @@ public class BasePack {
 
   @ManyToOne(cascade = CascadeType.REMOVE)
   @JoinColumn(name = "company_id")
+  @NotNull
   private Company company;
 
   public BasePack() {

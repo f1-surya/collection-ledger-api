@@ -2,6 +2,7 @@ package com.surya.customerledger.company;
 
 import com.surya.customerledger.db.model.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Company {
@@ -10,12 +11,15 @@ public class Company {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @NotNull
   private String name;
 
+  @NotNull
   private String email;
 
   @OneToOne
   @JoinColumn(name = "owner_id")
+  @NotNull
   private User owner;
 
   public Company() {

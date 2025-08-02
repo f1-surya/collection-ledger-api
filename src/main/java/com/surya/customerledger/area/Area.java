@@ -2,6 +2,7 @@ package com.surya.customerledger.area;
 
 import com.surya.customerledger.company.Company;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Area {
@@ -10,10 +11,12 @@ public class Area {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @NotNull
   private String name;
 
   @ManyToOne(cascade = CascadeType.REMOVE)
   @JoinColumn(name = "company_id")
+  @NotNull
   private Company company;
 
   public Area() {}
