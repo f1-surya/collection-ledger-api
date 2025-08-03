@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/api/payment")
 public class PaymentController {
   private final PaymentService paymentService;
 

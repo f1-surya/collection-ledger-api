@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pack")
+@RequestMapping("/api/pack")
 public class BasePackController {
   private final BasePackService basePackService;
 

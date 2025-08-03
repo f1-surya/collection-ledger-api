@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/area")
+@RequestMapping("/api/area")
 public class AreaController {
   private final AreaService areaService;
 

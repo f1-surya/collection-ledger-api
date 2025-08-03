@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 
 @RestController
-@RequestMapping("/data-transfer")
+@RequestMapping("/api/data-transfer")
 public class DataTransferController {
   private final DataTransferService dataTransferService;
 
