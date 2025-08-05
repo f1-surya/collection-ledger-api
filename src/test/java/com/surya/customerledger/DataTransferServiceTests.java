@@ -9,6 +9,7 @@ import com.surya.customerledger.company.CompanyRepo;
 import com.surya.customerledger.connection.Connection;
 import com.surya.customerledger.connection.ConnectionRepo;
 import com.surya.customerledger.dataTransfer.DataTransferService;
+import com.surya.customerledger.db.model.User;
 import com.surya.customerledger.payment.Payment;
 import com.surya.customerledger.payment.PaymentRepo;
 import org.dhatim.fastexcel.reader.ReadableWorkbook;
@@ -85,7 +86,9 @@ public class DataTransferServiceTests {
   @Mock
   private Company company;
 
-  private final Integer userId = 123;
+  @Mock
+  private User user;
+
   private final Instant startDate = Instant.parse("2025-07-01T00:00:00Z");
   private final Instant endDate = Instant.now();
 
@@ -101,7 +104,7 @@ public class DataTransferServiceTests {
     assertNotNull(result);
     assertTrue(result.length > 0);
 
-    verify(companyRepo).findByOwner(userId);
+    verify(companyRepo).findByOwner(user);
     verify(paymentRepo).findByCompanyAndIsMigrationAndDateBetween(company, false, startDate, endDate);
     verify(payment1).getConnection();
     verify(payment2).getConnection();
@@ -223,11 +226,11 @@ public class DataTransferServiceTests {
   private void setupSecurityContext() {
     SecurityContextHolder.setContext(securityContext);
     when(securityContext.getAuthentication()).thenReturn(authentication);
-    when(authentication.getPrincipal()).thenReturn(userId);
+    when(authentication.getPrincipal()).thenReturn(user);
   }
 
   private void setUpCompanyMock() {
-    when(companyRepo.findByOwner(userId)).thenReturn(Optional.of(company));
+    when(companyRepo.findByOwner(user)).thenReturn(Optional.of(company));
   }
 
   private void setupAreaAndBasePackMocks() {

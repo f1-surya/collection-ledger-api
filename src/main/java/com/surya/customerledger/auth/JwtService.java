@@ -1,4 +1,4 @@
-package com.surya.customerledger.security;
+package com.surya.customerledger.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

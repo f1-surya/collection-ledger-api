@@ -7,6 +7,7 @@ import com.surya.customerledger.basePack.BasePackRepo;
 import com.surya.customerledger.company.CompanyRepo;
 import com.surya.customerledger.connection.Connection;
 import com.surya.customerledger.connection.ConnectionRepo;
+import com.surya.customerledger.db.model.User;
 import com.surya.customerledger.payment.PaymentRepo;
 import jakarta.transaction.Transactional;
 import org.dhatim.fastexcel.Workbook;
@@ -52,8 +53,8 @@ public class DataTransferService {
   }
 
   public byte[] exportPaymentRange(Instant start, Instant end) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId)
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "You need to have a company."));
     var payments = paymentRepo.findByCompanyAndIsMigrationAndDateBetween(company, false, start, end);
 
@@ -78,8 +79,8 @@ public class DataTransferService {
   public void importFromSheet(byte[] rawSheetData) {
     if (rawSheetData.length == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sheet is empty");
 
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId)
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "You need to have a company."));
 
     var areas = new HashMap<String, Area>();
@@ -146,8 +147,8 @@ public class DataTransferService {
   }
 
   public byte[] exportToSheet() {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId)
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "You need to have a company."));
     var connections = connectionRepo.findByCompanyOrderByName(company);
 

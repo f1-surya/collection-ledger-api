@@ -3,6 +3,7 @@ package com.surya.customerledger.payment;
 import com.surya.customerledger.basePack.BasePackRepo;
 import com.surya.customerledger.company.CompanyRepo;
 import com.surya.customerledger.connection.ConnectionRepo;
+import com.surya.customerledger.db.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,8 @@ public class PaymentService {
 
   @Transactional
   public void create(Integer connectionId) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create payments."));
 
     var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
@@ -63,8 +64,8 @@ public class PaymentService {
 
   @Transactional
   public void migrate(Integer connectionId, Integer toPackId) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Since you don't have any company so you don't have any connections to make migrations."));
 
     var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
@@ -102,16 +103,16 @@ public class PaymentService {
   }
 
   public List<PaymentWC> getAll(Instant start, Instant end) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have payments."));
 
     return paymentRepo.findPaymentWCByCompanyAndDateBetween(company, start, end);
   }
 
   public List<PaymentPartial> getAllForConnection(Integer connectionId) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have connection payments."));
 
     var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
@@ -121,8 +122,8 @@ public class PaymentService {
 
   @Transactional
   public void delete(Integer paymentId) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You don't have any company yet"));
     var currentPayment = paymentRepo.findByIdAndCompany(paymentId, company)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The payment you're trying to delete doesn't exist"));

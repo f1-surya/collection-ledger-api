@@ -1,5 +1,6 @@
 package com.surya.customerledger.company;
 
+import com.surya.customerledger.db.model.User;
 import com.surya.customerledger.db.repo.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +64,8 @@ public class CompanyService {
   }
 
   public void editCompany(CompanyDto companyDto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(
         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The company you're trying edit doesn't exist")
     );
     company.setName(companyDto.name());

@@ -1,5 +1,6 @@
 package com.surya.customerledger.company;
 
+import com.surya.customerledger.db.model.User;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.repository.CrudRepository;
 
@@ -10,8 +11,7 @@ public interface CompanyRepo extends CrudRepository<Company, Integer> {
   @NativeQuery("select name, email from company where owner_id = ?1")
   Optional<NameEmailOnly> findByOwnerPartial(Integer ownerId);
 
-  @NativeQuery("select * from company where owner_id = ?1")
-  Optional<Company> findByOwner(Integer ownerId);
+  Optional<Company> findByOwner(User owner);
 
   boolean existsByEmail(String email);
 

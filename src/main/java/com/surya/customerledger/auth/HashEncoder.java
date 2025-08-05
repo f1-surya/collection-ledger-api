@@ -1,4 +1,4 @@
-package com.surya.customerledger.security;
+package com.surya.customerledger.auth;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

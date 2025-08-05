@@ -1,6 +1,7 @@
 package com.surya.customerledger.area;
 
 import com.surya.customerledger.company.CompanyRepo;
+import com.surya.customerledger.db.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,8 @@ public class AreaService {
   }
 
   public void create(CreateAreaDto dto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to create areas."));
     var newArea = new Area();
     newArea.setCompany(company);
@@ -29,15 +30,15 @@ public class AreaService {
   }
 
   public List<AreaNameIdOnly> getAreas() {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have areas."));
     return areaRepo.findByCompanyOrderByName(company);
   }
 
   public void update(UpdateAreaDto dto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have areas."));
     var currentArea = areaRepo.findById(dto.id()).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you're trying to update doesn't exist."));

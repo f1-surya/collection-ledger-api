@@ -3,6 +3,7 @@ package com.surya.customerledger.connection;
 import com.surya.customerledger.area.AreaRepo;
 import com.surya.customerledger.basePack.BasePackRepo;
 import com.surya.customerledger.company.CompanyRepo;
+import com.surya.customerledger.db.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,8 +34,8 @@ public class ConnectionService {
   }
 
   public void create(CreateConnectionDto dto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to create connections."));
     var areaFuture = CompletableFuture.supplyAsync(() -> areaRepo.findByIdAndCompany(dto.area(), company))
         .exceptionally(throwable -> {
@@ -46,10 +47,14 @@ public class ConnectionService {
           logger.error("Base pack fetch errored", throwable);
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong");
         });
+    var connectionFuture = CompletableFuture.supplyAsync(() -> connectionRepo.findByBoxNumber(dto.boxNumber()));
 
-    CompletableFuture.allOf(areaFuture, basePackFuture).join();
+    CompletableFuture.allOf(areaFuture, basePackFuture, connectionFuture).join();
 
     try {
+      connectionFuture.get().ifPresent(connection -> {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "A connection with the provided box number already exists.");
+      });
       var area = areaFuture.get().orElseThrow(() ->
           new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you've selected doesn't exist"));
       var basePack = basePackFuture.get().orElseThrow(() ->
@@ -64,8 +69,8 @@ public class ConnectionService {
   }
 
   public void update(UpdateConnectionDto dto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     var connection = connectionRepo.findByIdAndCompany(dto.id(), company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
@@ -81,16 +86,16 @@ public class ConnectionService {
   }
 
   public ConnectionPartial getConnectionById(Integer connectionId) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     return connectionRepo.findConnectionPartialByIdAndCompany(connectionId, company)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to find doesn't exist"));
   }
 
   public List<ConnectionPartial> getAllConnections() {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     return connectionRepo.findConnectionPartialByCompanyOrderByName(company);
   }

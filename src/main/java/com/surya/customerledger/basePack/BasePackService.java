@@ -1,6 +1,7 @@
 package com.surya.customerledger.basePack;
 
 import com.surya.customerledger.company.CompanyRepo;
+import com.surya.customerledger.db.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,8 @@ public class BasePackService {
   }
 
   public void createBasePack(BasePackDto basePackDto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to create base packs."));
     var newBasePack = new BasePack();
     newBasePack.setCompany(company);
@@ -31,15 +32,15 @@ public class BasePackService {
   }
 
   public List<BasePackPartial> getAllPacks() {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(() ->
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have base packs."));
     return basePackRepo.findByCompanyOrderByName(company);
   }
 
   public void updatePack(UpdateBasePackDto dto) {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    var company = companyRepo.findByOwner(userId).orElseThrow(
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(
         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "You don't have any company."));
     var pack = basePackRepo.findByIdAndCompany(dto.id(), company).orElseThrow(
         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The pack you're trying update doesn't exist"));

@@ -1,4 +1,4 @@
-package com.surya.customerledger.security;
+package com.surya.customerledger.auth;
 
 import com.surya.customerledger.db.model.RefreshToken;
 import com.surya.customerledger.db.model.User;
@@ -31,17 +31,13 @@ public class AuthService {
   }
 
   public void register(String name, String email, String password, String role) {
-    var existingUser = userRepo.findByEmail(email);
-    if (existingUser != null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with the same email already exists.");
-    }
+    var existingUser = userRepo.findByEmail(email).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.CONFLICT, "A user with the same email already exists."));
     userRepo.save(new User(name, email, hashEncoder.encode(password), role));
   }
 
   public TokenPair login(String email, String password) throws NoSuchAlgorithmException {
-    final var currUser = userRepo.findByEmail(email);
-
-    if (currUser == null) throw new BadCredentialsException("Invalid credentials.");
+    final var currUser = userRepo.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
     if (!hashEncoder.matches(password, currUser.getPassword())) throw new BadCredentialsException("Wrong password.");
 

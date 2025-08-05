@@ -14,4 +14,6 @@ public interface ConnectionRepo extends ListCrudRepository<Connection, Integer> 
   List<ConnectionPartial> findConnectionPartialByCompanyOrderByName(Company company);
 
   List<Connection> findByCompanyOrderByName(Company company);
+
+  Optional<Connection> findByBoxNumber(String boxNumber);
 }
