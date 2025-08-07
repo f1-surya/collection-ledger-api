@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Signup to CollectionLedger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+  <div class="card my-auto shadow-lg p-4 col-12 col-md-6">
+    <div class="card-body">
+      <h1 class="card-title text-center">Create a new account</h1>
+      <form th:action="@{/signup}" th:object="${formData}" method="post">
+        <div class="mb-3">
+          <label class="form-label" for="name">Name*:</label>
+          <input type="text" name="name" id="name" th:field="*{name}" required th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'">
+          <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="email">Email*:</label>
+          <input type="email" name="email" id="email" th:field="*{email}" required th:class="${#fields.hasErrors('email')} ? 'form-control is-invalid' : 'form-control'">
+          <p th:if="${#fields.hasErrors('email')}" class="invalid-feedback" th:errors="*{email}"></p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="password" >Password*:</label>
+          <input type="password" name="password" id="password" th:field="*{password}" required th:class="${#fields.hasErrors('password')} ? 'form-control is-invalid' : 'form-control'">
+          <p th:if="${#fields.hasErrors('password')}" class="invalid-feedback" th:errors="*{password}"></p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="passwordRepeat">Enter password again*:</label>
+          <input type="password" name="passwordRepeat" id="passwordRepeat" th:field="*{passwordRepeat}" required
+                 th:class="${#fields.hasErrors('passwordRepeat')} ? 'form-control is-invalid' : 'form-control'">
+          <div th:if="${#fields.hasErrors('passwordRepeat')}" class="invalid-feedback" th:errors="*{passwordRepeat}">
+          </div>
+        </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Create account</button>
+        </div>
+      </form>
+    </div>
+    <div class="card-footer text-center text-bg-dark">
+      Already have an account?, <a href="/login" class="text-decoration-none">Login here</a>
+    </div>
+  </div>
+</div>
+<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

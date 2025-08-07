@@ -70,7 +70,7 @@ public class SecurityConfig {
     http
         .authenticationProvider(authenticationProvider())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/css/**", "/js/**", "/error").permitAll()
+            .requestMatchers("/", "/css/**", "/js/**", "/error", "/webjars/**", "/signup").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(form -> form
