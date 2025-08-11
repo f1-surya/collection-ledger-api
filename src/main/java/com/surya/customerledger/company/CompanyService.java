@@ -35,7 +35,7 @@ public class CompanyService {
         });
 
     var companyByEmail = CompletableFuture
-        .supplyAsync(() -> companyRepo.existsByEmail(companyDto.email()))
+        .supplyAsync(() -> companyRepo.existsByEmail(companyDto.getEmail()))
         .exceptionally(ex -> {
           logger.error("Error checking for email availability", ex);
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error");
@@ -55,7 +55,7 @@ public class CompanyService {
         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
     );
 
-    companyRepo.save(new Company(companyDto.name(), companyDto.email(), currentUser));
+    companyRepo.save(new Company(companyDto.getName(), companyDto.getEmail(), currentUser));
   }
 
   public CompanyRepo.NameEmailOnly getCompany() {
@@ -68,8 +68,8 @@ public class CompanyService {
     var company = companyRepo.findByOwner(user).orElseThrow(
         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The company you're trying edit doesn't exist")
     );
-    company.setName(companyDto.name());
-    company.setEmail(companyDto.email());
+    company.setName(companyDto.getName());
+    company.setEmail(companyDto.getEmail());
     companyRepo.save(company);
   }
 }

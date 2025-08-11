@@ -1,7 +1,7 @@
 # Collection ledger
 
-This is the multi-tenant backend implementation of the local only app [**Collection ledger lite
-**](https://github.com/f1-surya/collection-ledger-lite).
+This is the multi-tenant backend implementation of the local only app **[Collection ledger lite
+](https://github.com/f1-surya/collection-ledger-lite)**.
 
 ## TODO:
 
