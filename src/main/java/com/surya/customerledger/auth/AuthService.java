@@ -30,17 +30,22 @@ public class AuthService {
     this.refreshTokenRepo = refreshTokenRepo;
   }
 
-  public void register(String name, String email, String password, String role) {
+  public TokenPair register(String name, String email, String password, String role) throws NoSuchAlgorithmException {
     var userExists = userRepo.existsByEmail(email);
     if (userExists) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with the same email already exists.");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "email:A user with the same email already exists.");
     }
-    userRepo.save(new User(name, email, hashEncoder.encode(password), role));
+    var newUser = userRepo.save(new User(name, email, hashEncoder.encode(password), role));
+    final var newAccessToken = jwtService.generateAccessToken(newUser.getId());
+    final var newRefreshToken = jwtService.generateRefreshToken(newUser.getId());
+
+    storeRefreshToken(newUser.getId(), newRefreshToken);
+
+    return new TokenPair(newAccessToken, newRefreshToken);
   }
 
   public TokenPair login(String email, String password) throws NoSuchAlgorithmException {
     final var currUser = userRepo.findByEmail(email).orElseThrow(() -> new BadCredentialsException("No account is associated with this email."));
-    System.out.println(currUser.getName());
     if (!hashEncoder.matches(password, currUser.getPassword())) throw new BadCredentialsException("Wrong password.");
 
     final var newAccessToken = jwtService.generateAccessToken(currUser.getId());

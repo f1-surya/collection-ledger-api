@@ -22,8 +22,8 @@ AuthController {
   }
 
   @PostMapping("/signup")
-  public void signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
-    authService.register(signupRequestDto.name(), signupRequestDto.email(), signupRequestDto.password(), "ADMIN");
+  public TokenPair signup(@RequestBody @Valid SignupRequestDto signupRequestDto) throws NoSuchAlgorithmException {
+    return authService.register(signupRequestDto.name(), signupRequestDto.email(), signupRequestDto.password(), "ADMIN");
   }
 
   @PostMapping("/login")
