@@ -17,6 +17,12 @@ public class Company {
   @NotNull
   private String email;
 
+  @NotNull
+  private String phone;
+
+  @NotNull
+  private String address;
+
   @OneToOne
   @JoinColumn(name = "owner_id")
   @NotNull
@@ -25,9 +31,11 @@ public class Company {
   public Company() {
   }
 
-  public Company(String name, String email, User owner) {
+  public Company(String name, String email, String phone, String address, User owner) {
     this.name = name;
     this.email = email;
+    this.phone = phone;
+    this.address = address;
     this.owner = owner;
   }
 
@@ -45,6 +53,22 @@ public class Company {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
   }
 
   public User getOwner() {

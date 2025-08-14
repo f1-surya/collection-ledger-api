@@ -21,7 +21,7 @@ public class CompanyController {
   }
 
   @GetMapping
-  public CompanyRepo.NameEmailOnly getCompany() {
+  public Company getCompany() {
     return companyService.getCompany();
   }
 

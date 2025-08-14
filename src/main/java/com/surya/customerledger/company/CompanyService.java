@@ -1,7 +1,6 @@
 package com.surya.customerledger.company;
 
 import com.surya.customerledger.db.model.User;
-import com.surya.customerledger.db.repo.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,19 +15,17 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class CompanyService {
   private final CompanyRepo companyRepo;
-  private final UserRepo userRepo;
   private final Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
-  public CompanyService(CompanyRepo companyRepo, UserRepo userRepo) {
+  public CompanyService(CompanyRepo companyRepo) {
     this.companyRepo = companyRepo;
-    this.userRepo = userRepo;
   }
 
   @Transactional
   public void createCompany(CompanyDto companyDto) throws ExecutionException, InterruptedException {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var companyByUser = CompletableFuture
-        .supplyAsync(() -> companyRepo.existsByOwner(userId))
+        .supplyAsync(() -> companyRepo.existsByOwner(user))
         .exceptionally(ex -> {
           logger.error("Error checking for existing company", ex);
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error");
@@ -41,26 +38,35 @@ public class CompanyService {
           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error");
         });
 
-    CompletableFuture.allOf(companyByUser, companyByEmail).join();
+    var companyByPhone = CompletableFuture
+        .supplyAsync(() -> companyRepo.existsByPhone(companyDto.getPhone()))
+            .exceptionally(ex -> {
+              logger.error("Error checking for email availability", ex);
+              throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error");
+            });
 
-    if (companyByUser.get() == 1) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "A company already exists for the current user.");
+    CompletableFuture.allOf(companyByUser, companyByEmail, companyByPhone).join();
+
+    if (companyByUser.get()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Only 1 company is supported per user at the moment");
     }
 
     if (companyByEmail.get()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "A company with provided email already exists");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "email:A company with provided email already exists");
     }
 
-    var currentUser = userRepo.findById(userId).orElseThrow(
-        () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
-    );
+    if (companyByPhone.get()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "phone:A company with provide phone number already exists");
+    }
 
-    companyRepo.save(new Company(companyDto.getName(), companyDto.getEmail(), currentUser));
+    companyRepo.save(new Company(companyDto.getName(), companyDto.getEmail(), companyDto.getPhone(), companyDto.getAddress(), user));
   }
 
-  public CompanyRepo.NameEmailOnly getCompany() {
-    var userId = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return companyRepo.findByOwnerPartial(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+  public Company getCompany() {
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    company.setOwner(null);
+    return company;
   }
 
   public void editCompany(CompanyDto companyDto) {
