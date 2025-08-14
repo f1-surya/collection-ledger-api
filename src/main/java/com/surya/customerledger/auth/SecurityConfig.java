@@ -36,12 +36,9 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth ->
             auth
-                .requestMatchers("/api/auth/**")
-                .permitAll()
-                .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD)
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .requestMatchers("/api/auth/**").permitAll()
+                .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD).permitAll()
+                .anyRequest().authenticated()
         )
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .exceptionHandling(e ->

@@ -3,7 +3,8 @@ package com.surya.customerledger.db.repo;
 import com.surya.customerledger.db.model.RefreshToken;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Optional;
+
 public interface RefreshTokenRepo extends CrudRepository<RefreshToken, Integer> {
-  RefreshToken findByUserIdAndToken(Integer userId, String token);
-  RefreshToken deleteByUserIdAndToken(Integer userId, String token);
+  Optional<RefreshToken> findByUserIdAndToken(Integer userId, String token);
 }

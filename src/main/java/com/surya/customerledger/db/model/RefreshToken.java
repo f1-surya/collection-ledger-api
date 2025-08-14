@@ -23,6 +23,10 @@ public class RefreshToken {
     this.token = token;
   }
 
+  public RefreshToken() {
+
+  }
+
   public Instant getExpiresAt() {
     return expiresAt;
   }

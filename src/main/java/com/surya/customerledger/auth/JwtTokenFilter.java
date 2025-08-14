@@ -28,6 +28,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
+    if (req.getRequestURI().contains("/auth/refresh")) {
+      filterChain.doFilter(req, res);
+      return;
+    }
     final var authHeader = req.getHeader("Authorization");
     try {
       if (authHeader != null) {
@@ -43,7 +47,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     } catch (ExpiredJwtException e) {
       res.setStatus(419);
       res.setContentType("application/json");
-      res.getWriter().write("{\"error\": \"Access token expired\"}");
+      res.getWriter().write("{\"error\": \"Access token expired!!!\"}");
       return;
     }
     filterChain.doFilter(req, res);
