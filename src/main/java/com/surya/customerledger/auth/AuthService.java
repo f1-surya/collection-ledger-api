@@ -69,18 +69,15 @@ public class AuthService {
 
     final var hashed = hashToken(accessToken);
 
-    final var oldToken = refreshTokenRepo.findByUserIdAndToken(userId, hashed);
-    if (oldToken == null) throw new ResponseStatusException(
-        HttpStatusCode.valueOf(401),
-        "Refresh token not recognized."
-    );
+    final var oldToken = refreshTokenRepo.findByUserIdAndToken(userId, hashed)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatusCode.valueOf(401), "Refresh token not recognized."));
 
-    refreshTokenRepo.deleteByUserIdAndToken(userId, hashed);
+    refreshTokenRepo.delete(oldToken);
 
     final var newRefreshToken = jwtService.generateRefreshToken(userId);
     final var newAccessToken = jwtService.generateAccessToken(userId);
 
-    storeRefreshToken(userId, newAccessToken);
+    storeRefreshToken(userId, newRefreshToken);
     return new TokenPair(newAccessToken, newRefreshToken);
   }
 
