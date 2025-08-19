@@ -1,14 +1,15 @@
 services:
-  mysql:
-    image: mysql:latest
-    container_name: customerledger-db
+  db:
+    image: postgres:latest
+    container_name: customerledger-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: password #Change it for prod (obvious)
-      MYSQL_DATABASE: customer_ledger
+      POSTGRES_PASSWORD: password #Change it for prod (obvious)
+      POSTGRES_USER: cl_user
+      POSTGRES_DB: customer_ledger
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - customerledger-db-data:/var/lib/mysql
+      - customerledger-db-data:/var/lib/postgres
 
 volumes:
   customerledger-db-data:
