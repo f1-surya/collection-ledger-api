@@ -4,6 +4,8 @@ import com.surya.customerledger.area.AreaRepo;
 import com.surya.customerledger.basePack.BasePackRepo;
 import com.surya.customerledger.company.CompanyRepo;
 import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.exceptions.ConflictException;
+import com.surya.customerledger.exceptions.InvalidReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -53,12 +55,12 @@ public class ConnectionService {
 
     try {
       connectionFuture.get().ifPresent(connection -> {
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "A connection with the provided box number already exists.");
+        throw new ConflictException("boxNumber", "A connection with the provided box number already exists.");
       });
       var area = areaFuture.get().orElseThrow(() ->
-          new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you've selected doesn't exist"));
+          new InvalidReferenceException("area", "The area you've selected doesn't exist"));
       var basePack = basePackFuture.get().orElseThrow(() ->
-          new ResponseStatusException(HttpStatus.NOT_FOUND, "The base pack you've provided doesn't exist"));
+          new InvalidReferenceException("basePack", "The base pack you've provided doesn't exist"));
 
       var newConnection = new Connection(dto.name(), dto.boxNumber(), dto.phoneNumber(), company, area, basePack);
       connectionRepo.save(newConnection);
@@ -79,7 +81,7 @@ public class ConnectionService {
     connection.setPhoneNumber(dto.phoneNumber());
     if (!dto.area().equals(connection.getArea().getId())) {
       var newArea = areaRepo.findById(dto.area()).orElseThrow(() ->
-          new ResponseStatusException(HttpStatus.NOT_FOUND, "The new area you've selected for this connection doesn't exist"));
+          new InvalidReferenceException("area", "The new area you've selected for this connection doesn't exist"));
       connection.setArea(newArea);
     }
     connectionRepo.save(connection);

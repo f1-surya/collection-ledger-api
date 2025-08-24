@@ -1,5 +1,7 @@
 package com.surya.customerledger;
 
+import com.surya.customerledger.exceptions.ConflictException;
+import com.surya.customerledger.exceptions.InvalidReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
@@ -12,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalValidationHandler {
+public class GlobalExceptionHandler {
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,5 +38,21 @@ public class GlobalValidationHandler {
       result.put("email", message);
     }
     return result;
+  }
+
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(ConflictException.class)
+  public Map<String, String> handleConflictException(ConflictException conflictException) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put(conflictException.getField(), conflictException.getMessage());
+    return errors;
+  }
+
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(InvalidReferenceException.class)
+  public Map<String, String> handleInvalidReferenceException(InvalidReferenceException invalidReferenceException) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put(invalidReferenceException.getField(), invalidReferenceException.getMessage());
+    return errors;
   }
 }

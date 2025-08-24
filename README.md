@@ -11,7 +11,7 @@ This is the multi-tenant backend implementation of the local only app **[Collect
 - [x] Connections
 - [x] Monthly payment
 - [x] Paid connections list export
-- [ ] Basic front-end.
 - [ ] Data import and export from the DB of CL lite and also from excel sheets.
 - [ ] Ala-carte channels
+- [ ] Admin panel
 - [ ] Employees

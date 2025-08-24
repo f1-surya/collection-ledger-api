@@ -1,6 +1,7 @@
 package com.surya.customerledger.company;
 
 import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.exceptions.ConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -48,15 +49,15 @@ public class CompanyService {
     CompletableFuture.allOf(companyByUser, companyByEmail, companyByPhone).join();
 
     if (companyByUser.get()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Only 1 company is supported per user at the moment");
+      throw new ConflictException("message", "Only 1 company is supported per user at the moment");
     }
 
     if (companyByEmail.get()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "email:A company with provided email already exists");
+      throw new ConflictException("email", "A company with provided email already exists");
     }
 
     if (companyByPhone.get()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "phone:A company with provide phone number already exists");
+      throw new ConflictException("phone", "A company with provide phone number already exists");
     }
 
     companyRepo.save(new Company(companyDto.getName(), companyDto.getEmail(), companyDto.getPhone(), companyDto.getAddress(), user));

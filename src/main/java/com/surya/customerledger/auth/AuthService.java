@@ -57,17 +57,17 @@ public class AuthService {
   }
 
   @Transactional
-  public TokenPair refresh(String accessToken) throws NoSuchAlgorithmException {
-    if (!jwtService.validateRefreshToken(accessToken)) throw new ResponseStatusException(
+  public TokenPair refresh(String refreshToken) throws NoSuchAlgorithmException {
+    if (!jwtService.validateRefreshToken(refreshToken)) throw new ResponseStatusException(
         HttpStatusCode.valueOf(401), "Invalid refresh token."
     );
 
-    final var userId = jwtService.extractUserId(accessToken);
+    final var userId = jwtService.extractUserId(refreshToken);
     userRepo.findById(userId).orElseThrow(() -> new ResponseStatusException(
         HttpStatusCode.valueOf(401), "Invalid refresh token."
     ));
 
-    final var hashed = hashToken(accessToken);
+    final var hashed = hashToken(refreshToken);
 
     final var oldToken = refreshTokenRepo.findByUserIdAndToken(userId, hashed)
         .orElseThrow(() -> new ResponseStatusException(HttpStatusCode.valueOf(401), "Refresh token not recognized."));
