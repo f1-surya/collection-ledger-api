@@ -4,7 +4,7 @@ import com.surya.customerledger.db.model.RefreshToken;
 import com.surya.customerledger.db.model.User;
 import com.surya.customerledger.db.repo.RefreshTokenRepo;
 import com.surya.customerledger.db.repo.UserRepo;
-import org.springframework.http.HttpStatus;
+import com.surya.customerledger.exceptions.ConflictException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class AuthService {
   public TokenPair register(String name, String email, String password, String role) throws NoSuchAlgorithmException {
     var userExists = userRepo.existsByEmail(email);
     if (userExists) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "email:A user with the same email already exists.");
+      throw new ConflictException("email", "A user with the same email already exists.");
     }
     var newUser = userRepo.save(new User(name, email, hashEncoder.encode(password), role));
     final var newAccessToken = jwtService.generateAccessToken(newUser.getId());
