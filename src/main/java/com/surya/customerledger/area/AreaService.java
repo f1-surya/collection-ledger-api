@@ -29,11 +29,11 @@ public class AreaService {
     areaRepo.save(newArea);
   }
 
-  public List<AreaNameIdOnly> getAreas() {
+  public List<AreaDto> getAreas() {
     var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have areas."));
-    return areaRepo.findByCompanyOrderByName(company);
+    return areaRepo.findAll(company.getId());
   }
 
   public void update(UpdateAreaDto dto) {

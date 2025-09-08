@@ -20,7 +20,7 @@ public class AreaController {
   }
 
   @GetMapping
-  public List<AreaNameIdOnly> getAllAreas() {
+  public List<AreaDto> getAllAreas() {
     return areaService.getAreas();
   }
 
