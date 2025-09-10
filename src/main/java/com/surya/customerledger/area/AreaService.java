@@ -40,12 +40,20 @@ public class AreaService {
     var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have areas."));
-    var currentArea = areaRepo.findById(dto.id()).orElseThrow(() ->
+    var currentArea = areaRepo.findByIdAndCompany(dto.id(), company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you're trying to update doesn't exist."));
-    if (!company.getId().equals(currentArea.getCompany().getId())) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The area you're trying update doesn't belong to you");
-    }
+
     currentArea.setName(dto.name());
     areaRepo.save(currentArea);
+  }
+
+  public void delete(Integer areaId) {
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have areas."));
+    var currentArea = areaRepo.findByIdAndCompany(areaId, company).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you're trying to update doesn't exist."));
+
+    areaRepo.delete(currentArea);
   }
 }

@@ -14,7 +14,7 @@ public class Area {
   @NotNull
   private String name;
 
-  @ManyToOne(cascade = CascadeType.REMOVE)
+  @ManyToOne
   @JoinColumn(name = "company_id")
   @NotNull
   private Company company;

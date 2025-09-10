@@ -28,4 +28,9 @@ public class AreaController {
   public void updateArea(@RequestBody @Valid UpdateAreaDto updateAreaDto) {
     areaService.update(updateAreaDto);
   }
+
+  @DeleteMapping
+  public void deleteArea(@RequestParam("id") Integer areaId) {
+    areaService.delete(areaId);
+  }
 }
