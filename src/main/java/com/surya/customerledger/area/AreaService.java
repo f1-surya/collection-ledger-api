@@ -1,6 +1,7 @@
 package com.surya.customerledger.area;
 
 import com.surya.customerledger.company.CompanyRepo;
+import com.surya.customerledger.connection.ConnectionRepo;
 import com.surya.customerledger.db.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,10 +14,12 @@ import java.util.List;
 public class AreaService {
   private final CompanyRepo companyRepo;
   private final AreaRepo areaRepo;
+  private final ConnectionRepo connectionRepo;
 
-  public AreaService(CompanyRepo companyRepo, AreaRepo areaRepo) {
+  public AreaService(CompanyRepo companyRepo, AreaRepo areaRepo, ConnectionRepo connectionRepo) {
     this.companyRepo = companyRepo;
     this.areaRepo = areaRepo;
+    this.connectionRepo = connectionRepo;
   }
 
   public void create(CreateAreaDto dto) {
@@ -52,7 +55,12 @@ public class AreaService {
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have areas."));
     var currentArea = areaRepo.findByIdAndCompany(areaId, company).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you're trying to update doesn't exist."));
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "The area you're trying to delete doesn't exist."));
+
+    var connectionExists = connectionRepo.existsByArea(currentArea);
+    if (connectionExists) {
+      throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "There are some connections in this area so it cannot be deleted.");
+    }
 
     areaRepo.delete(currentArea);
   }

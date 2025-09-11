@@ -26,7 +26,7 @@ public class BasePack {
   @UpdateTimestamp
   private Instant updatedAt;
 
-  @ManyToOne(cascade = CascadeType.REMOVE)
+  @ManyToOne
   @JoinColumn(name = "company_id")
   @NotNull
   private Company company;

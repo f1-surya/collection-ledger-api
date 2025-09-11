@@ -20,12 +20,17 @@ public class BasePackController {
   }
 
   @GetMapping
-  public List<BasePackPartial> getBasePacks() {
+  public List<BasePackConCount> getBasePacks() {
     return basePackService.getAllPacks();
   }
 
   @PutMapping
   public void updateBasePack(@RequestBody @Valid UpdateBasePackDto dto) {
     basePackService.updatePack(dto);
+  }
+
+  @DeleteMapping
+  public void deleteBasePack(@RequestParam("id") Integer basePackId) {
+    basePackService.deletePack(basePackId);
   }
 }

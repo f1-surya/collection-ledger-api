@@ -1,5 +1,7 @@
 package com.surya.customerledger.connection;
 
+import com.surya.customerledger.area.Area;
+import com.surya.customerledger.basePack.BasePack;
 import com.surya.customerledger.company.Company;
 import org.springframework.data.repository.ListCrudRepository;
 
@@ -16,4 +18,8 @@ public interface ConnectionRepo extends ListCrudRepository<Connection, Integer> 
   List<Connection> findByCompanyOrderByName(Company company);
 
   Optional<Connection> findByBoxNumber(String boxNumber);
+
+  Boolean existsByBasePack(BasePack basePack);
+
+  Boolean existsByArea(Area area);
 }
