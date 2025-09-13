@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -129,14 +130,21 @@ public class DataTransferService {
           currentArea = areaRepo.save(new Area(areaName, company));
           areas.put(currentArea.getName(), currentArea);
         }
+
+        var boxNumberVal = currentRow.getCell(boxNumberCol).getValue();
+        String boxNumber = (boxNumberVal instanceof BigDecimal bd)
+            ? bd.toPlainString()
+            : boxNumberVal.toString();
+
         newConnections.add(new Connection(
             currentRow.getCell(nameCol).asString(),
-            currentRow.getCell(boxNumberCol).getText(),
+            boxNumber,
             company,
             currentArea,
             currentPack
         ));
       }
+
       if (!newConnections.isEmpty()) {
         connectionRepo.saveAll(newConnections);
       }
