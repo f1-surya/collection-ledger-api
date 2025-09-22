@@ -15,13 +15,13 @@ public class PaymentController {
   }
 
   @PostMapping
-  public void create(@RequestParam("connectionId") Integer connectionId) {
-    paymentService.create(connectionId);
+  public PaymentDto create(@RequestParam("connectionId") Integer connectionId) {
+    return paymentService.create(connectionId);
   }
 
   @PostMapping("migrate")
-  public void migrate(@RequestParam("connectionId") Integer connectionId, @RequestParam("to") Integer to) {
-    paymentService.migrate(connectionId, to);
+  public PaymentDto migrate(@RequestParam("connectionId") Integer connectionId, @RequestParam("to") Integer to) {
+    return paymentService.migrate(connectionId, to);
   }
 
   @GetMapping
@@ -29,9 +29,9 @@ public class PaymentController {
     return paymentService.getAll(start, end);
   }
 
-  @GetMapping("/{connectionId}")
-  public List<PaymentPartial> getConnectionPayments(@PathVariable("connectionId") Integer connectionId) {
-    return paymentService.getAllForConnection(connectionId);
+  @GetMapping("/{boxNumber}")
+  public List<PaymentPartial> getConnectionPayments(@PathVariable("boxNumber") String boxNumber) {
+    return paymentService.getAllForConnection(boxNumber);
   }
 
   @DeleteMapping

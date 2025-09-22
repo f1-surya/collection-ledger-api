@@ -91,7 +91,17 @@ public class ConnectionService {
     var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
+
     return connectionRepo.findConnectionPartialByIdAndCompany(connectionId, company)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to find doesn't exist"));
+  }
+
+  public ConnectionPartial getConnectionByBoxNumber(String boxNumber) {
+    var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    var company = companyRepo.findByOwner(user).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
+
+    return connectionRepo.findConnectionPartialByBoxNumberAndCompany(boxNumber, company)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to find doesn't exist"));
   }
 
@@ -101,4 +111,5 @@ public class ConnectionService {
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company to have connections."));
     return connectionRepo.findConnectionPartialByCompanyOrderByName(company);
   }
+
 }

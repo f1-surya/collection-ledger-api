@@ -29,8 +29,8 @@ public class ConnectionController {
     return connectionService.getAllConnections();
   }
 
-  @GetMapping("/{connectionId}")
-  public ConnectionPartial getConnectionById(@PathVariable("connectionId") Integer id) {
-    return connectionService.getConnectionById(id);
+  @GetMapping("/{boxNumber}")
+  public ConnectionPartial getConnectionById(@PathVariable("boxNumber") String boxNumber) {
+    return connectionService.getConnectionByBoxNumber(boxNumber);
   }
 }

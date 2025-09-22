@@ -19,6 +19,10 @@ public interface ConnectionRepo extends ListCrudRepository<Connection, Integer> 
 
   Optional<Connection> findByBoxNumber(String boxNumber);
 
+  Optional<Connection> findByBoxNumberAndCompany(String boxNumber, Company company);
+
+  Optional<ConnectionPartial> findConnectionPartialByBoxNumberAndCompany(String boxNumber, Company company);
+
   Boolean existsByBasePack(BasePack basePack);
 
   Boolean existsByArea(Area area);

@@ -31,7 +31,7 @@ public class PaymentService {
   }
 
   @Transactional
-  public void create(Integer connectionId) {
+  public PaymentDto create(Integer connectionId) {
     var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need a company first to create payments."));
@@ -57,13 +57,15 @@ public class PaymentService {
         connection.getBasePack().getCustomerPrice(),
         connection.getBasePack().getLcoPrice(),
         company);
-    paymentRepo.save(newPayment);
+    var returnVal = paymentRepo.save(newPayment);
     connection.setLastPayment(Instant.now());
     connectionRepo.save(connection);
+
+    return new PaymentDto(returnVal);
   }
 
   @Transactional
-  public void migrate(Integer connectionId, Integer toPackId) {
+  public PaymentDto migrate(Integer connectionId, Integer toPackId) {
     var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Since you don't have any company so you don't have any connections to make migrations."));
@@ -99,7 +101,7 @@ public class PaymentService {
     }
 
     currPayment.setMigration(true);
-    paymentRepo.save(currPayment);
+    return new PaymentDto(paymentRepo.save(currPayment));
   }
 
   public List<PaymentWC> getAll(Instant start, Instant end) {
@@ -110,13 +112,14 @@ public class PaymentService {
     return paymentRepo.findPaymentWCByCompanyAndDateBetween(company, start, end);
   }
 
-  public List<PaymentPartial> getAllForConnection(Integer connectionId) {
+  public List<PaymentPartial> getAllForConnection(String boxNumber) {
     var user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var company = companyRepo.findByOwner(user).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have a company to have connection payments."));
 
-    var connection = connectionRepo.findByIdAndCompany(connectionId, company).orElseThrow(() ->
+    var connection = connectionRepo.findByBoxNumberAndCompany(boxNumber, company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
+
     return paymentRepo.findPaymentPartialByCompanyAndConnection(company, connection);
   }
 
