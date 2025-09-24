@@ -73,7 +73,7 @@ public class PaymentDto {
     this.id = id;
   }
 
-  public Boolean getMigration() {
+  public Boolean getIsMigration() {
     return isMigration;
   }
 

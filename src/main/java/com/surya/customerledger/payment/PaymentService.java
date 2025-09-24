@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -130,6 +131,11 @@ public class PaymentService {
         new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You don't have any company yet"));
     var currentPayment = paymentRepo.findByIdAndCompany(paymentId, company)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The payment you're trying to delete doesn't exist"));
+
+    if (!isThisMonth(currentPayment.getDate())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can only delete payments for the current month.");
+    }
+
     var currentConnection = connectionRepo.findById(currentPayment.getConnection().getId())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Can't get connection for the current payment."));
     paymentRepo.delete(currentPayment);
@@ -145,7 +151,15 @@ public class PaymentService {
       }
     } else {
       currentConnection.setLastPayment(null);
+      currentConnection.setBasePack(currentPayment.getCurrentPack());
     }
     connectionRepo.save(currentConnection);
+  }
+
+  private boolean isThisMonth(Instant instant) {
+    var currentYearMonth = YearMonth.now();
+    var instantLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+    return currentYearMonth.equals(YearMonth.from(instantLocalDate));
   }
 }
