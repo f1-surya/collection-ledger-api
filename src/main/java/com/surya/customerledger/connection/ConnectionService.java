@@ -79,6 +79,14 @@ public class ConnectionService {
 
     connection.setName(dto.name());
     connection.setPhoneNumber(dto.phoneNumber());
+
+    if (!connection.getBoxNumber().equals(dto.boxNumber())) {
+      if (connectionRepo.existsByBoxNumber(dto.boxNumber())) {
+        throw new ConflictException("boxNumber", "A connection with the given box number already exists");
+      } else {
+        connection.setBoxNumber(dto.boxNumber());
+      }
+    }
     if (!dto.area().equals(connection.getArea().getId())) {
       var newArea = areaRepo.findById(dto.area()).orElseThrow(() ->
           new InvalidReferenceException("area", "The new area you've selected for this connection doesn't exist"));

@@ -26,4 +26,6 @@ public interface ConnectionRepo extends ListCrudRepository<Connection, Integer> 
   Boolean existsByBasePack(BasePack basePack);
 
   Boolean existsByArea(Area area);
+
+  Boolean existsByBoxNumber(String boxNumber);
 }
