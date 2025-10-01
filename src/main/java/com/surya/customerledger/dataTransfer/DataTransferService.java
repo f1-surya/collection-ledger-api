@@ -13,8 +13,10 @@ import jakarta.transaction.Transactional;
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.reader.Cell;
 import org.dhatim.fastexcel.reader.ReadableWorkbook;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -151,6 +154,14 @@ public class DataTransferService {
     } catch (IOException e) {
       logger.error("Error while importing data", e);
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong while reading the sheet");
+    } catch (DataIntegrityViolationException e) {
+      Throwable rootCause = e.getRootCause();
+      if (rootCause instanceof PSQLException psqlException) {
+        if ("23505".equals(psqlException.getSQLState())) {
+          String message = psqlException.getMessage();
+          throw new ResponseStatusException(HttpStatus.CONFLICT, message.split("\n")[1].split(":")[1].strip());
+        }
+      }
     }
   }
 
@@ -193,7 +204,7 @@ public class DataTransferService {
 
         for (int i = 0; i < payments.size(); i++) {
           var currentPayment = payments.get(i);
-          paymentsSheet.value(i + 1, 0, currentPayment.getDate().atZone(ZoneId.of("Asia/Kolkata")));
+          paymentsSheet.value(i + 1, 0, currentPayment.getDate().atZone(ZoneId.of("Asia/Kolkata")).toString());
           paymentsSheet.value(i + 1, 1, currentPayment.getConnection().getName());
           paymentsSheet.value(i + 1, 2, currentPayment.getConnection().getBoxNumber());
           paymentsSheet.value(i + 1, 3, currentPayment.getCustomerPrice());
