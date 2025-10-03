@@ -1,6 +1,6 @@
 package com.surya.customerledger.auth;
 
-import com.surya.customerledger.db.repo.UserRepo;
+import com.surya.customerledger.user.UserRepo;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

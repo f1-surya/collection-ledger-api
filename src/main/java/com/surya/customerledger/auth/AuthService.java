@@ -1,9 +1,9 @@
 package com.surya.customerledger.auth;
 
 import com.surya.customerledger.db.model.RefreshToken;
-import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.user.User;
 import com.surya.customerledger.db.repo.RefreshTokenRepo;
-import com.surya.customerledger.db.repo.UserRepo;
+import com.surya.customerledger.user.UserRepo;
 import com.surya.customerledger.exceptions.ConflictException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.BadCredentialsException;

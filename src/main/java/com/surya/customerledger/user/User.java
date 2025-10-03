@@ -1,4 +1,4 @@
-package com.surya.customerledger.db.model;
+package com.surya.customerledger.user;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

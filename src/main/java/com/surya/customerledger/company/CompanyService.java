@@ -1,6 +1,6 @@
 package com.surya.customerledger.company;
 
-import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.user.User;
 import com.surya.customerledger.exceptions.ConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

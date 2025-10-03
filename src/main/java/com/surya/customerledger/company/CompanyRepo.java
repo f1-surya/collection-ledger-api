@@ -1,7 +1,6 @@
 package com.surya.customerledger.company;
 
-import com.surya.customerledger.db.model.User;
-import org.springframework.data.jpa.repository.NativeQuery;
+import com.surya.customerledger.user.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

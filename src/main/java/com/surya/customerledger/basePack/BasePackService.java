@@ -2,7 +2,7 @@ package com.surya.customerledger.basePack;
 
 import com.surya.customerledger.company.CompanyRepo;
 import com.surya.customerledger.connection.ConnectionRepo;
-import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.user.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

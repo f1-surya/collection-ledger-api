@@ -1,6 +1,6 @@
 package com.surya.customerledger.auth;
 
-import com.surya.customerledger.db.repo.UserRepo;
+import com.surya.customerledger.user.UserRepo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

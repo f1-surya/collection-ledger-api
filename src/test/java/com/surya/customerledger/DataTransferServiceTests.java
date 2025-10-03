@@ -9,7 +9,7 @@ import com.surya.customerledger.company.CompanyRepo;
 import com.surya.customerledger.connection.Connection;
 import com.surya.customerledger.connection.ConnectionRepo;
 import com.surya.customerledger.dataTransfer.DataTransferService;
-import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.user.User;
 import com.surya.customerledger.payment.Payment;
 import com.surya.customerledger.payment.PaymentRepo;
 import org.dhatim.fastexcel.reader.ReadableWorkbook;

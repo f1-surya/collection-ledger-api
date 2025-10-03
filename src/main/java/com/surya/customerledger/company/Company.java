@@ -1,6 +1,6 @@
 package com.surya.customerledger.company;
 
-import com.surya.customerledger.db.model.User;
+import com.surya.customerledger.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
