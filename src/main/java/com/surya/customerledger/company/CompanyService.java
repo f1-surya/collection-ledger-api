@@ -77,6 +77,8 @@ public class CompanyService {
     );
     company.setName(companyDto.getName());
     company.setEmail(companyDto.getEmail());
+    company.setPhone(companyDto.getPhone());
+    company.setAddress(companyDto.getAddress());
     companyRepo.save(company);
   }
 }
