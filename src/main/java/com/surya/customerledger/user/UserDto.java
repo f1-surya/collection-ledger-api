@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class UserDto {
-  @NotNull(message = "ID is required")
   private Integer id;
 
   @NotNull(message = "Name is required")

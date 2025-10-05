@@ -1,7 +1,7 @@
 package com.surya.customerledger.company;
 
-import com.surya.customerledger.user.User;
 import com.surya.customerledger.exceptions.ConflictException;
+import com.surya.customerledger.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -41,10 +41,10 @@ public class CompanyService {
 
     var companyByPhone = CompletableFuture
         .supplyAsync(() -> companyRepo.existsByPhone(companyDto.getPhone()))
-            .exceptionally(ex -> {
-              logger.error("Error checking for email availability", ex);
-              throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error");
-            });
+        .exceptionally(ex -> {
+          logger.error("Error checking for email availability", ex);
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error");
+        });
 
     CompletableFuture.allOf(companyByUser, companyByEmail, companyByPhone).join();
 
@@ -75,10 +75,27 @@ public class CompanyService {
     var company = companyRepo.findByOwner(user).orElseThrow(
         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The company you're trying edit doesn't exist")
     );
+
     company.setName(companyDto.getName());
-    company.setEmail(companyDto.getEmail());
-    company.setPhone(companyDto.getPhone());
     company.setAddress(companyDto.getAddress());
+
+    if (!company.getEmail().equals(companyDto.getEmail())) {
+      var byEmail = companyRepo.existsByEmail(companyDto.getEmail());
+      if (byEmail) {
+        throw new ConflictException("email", "A company already exists for the given email");
+      } else {
+        company.setEmail(companyDto.getEmail());
+      }
+    }
+
+    if (!company.getPhone().equals(companyDto.getPhone())) {
+      if (companyRepo.existsByPhone(companyDto.getPhone())) {
+        throw new ConflictException("phone", "A company already exists for the given phone number");
+      } else {
+        company.setPhone(companyDto.getPhone());
+      }
+    }
+
     companyRepo.save(company);
   }
 }
