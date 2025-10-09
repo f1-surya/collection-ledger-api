@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @Service
@@ -76,16 +74,23 @@ public class PaymentService {
     var toPack = basePackRepo.findByIdAndCompany(toPackId, company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The pack you've selected doesn't exist"));
 
-    var now = LocalDateTime.now();
+    if (connection.getBasePack().getId().equals(toPack.getId())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose a different pack");
+    }
+
+    var now = ZonedDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay(ZoneId.of("UTC")).toInstant();
     Payment currPayment;
     var paymentCurrentMonth = paymentRepo.findFirstByCompanyAndConnectionAndDateBetween(
         company,
         connection,
-        now.withDayOfMonth(1).atZone(ZoneId.systemDefault()).toInstant(),
+        now,
         Instant.now()
     );
     if (paymentCurrentMonth.isPresent()) {
       currPayment = paymentCurrentMonth.get();
+      if (currPayment.getCurrentPack().getId().equals(toPack.getId())) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose a different pack");
+      }
       currPayment.setTo(toPack);
       currPayment.setDate(Instant.now());
       currPayment.getConnection().setBasePack(toPack);
@@ -121,7 +126,7 @@ public class PaymentService {
     var connection = connectionRepo.findByBoxNumberAndCompany(boxNumber, company).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "The connection you're trying to update doesn't exist"));
 
-    return paymentRepo.findPaymentPartialByCompanyAndConnection(company, connection);
+    return paymentRepo.findPaymentPartialByCompanyAndConnectionOrderByDateDesc(company, connection);
   }
 
   @Transactional
